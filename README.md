@@ -255,3 +255,15 @@ Retomen las tres reglas clasificadas en el paso anterior: ¿en qué componente d
 - Regla 1: En FechaUtils, se implementa un método para validar si una fecha es futura, porque es una operación repetitiva.
 - Regla 2: En ReservaValidator, ya que al generarse una reserva el barbero deseado por el cliente no puede ser nulo.
 - Regla 3: En ClienteValidator, ya que su correo asociado no debe tener nombre nulo ni vacio, ni un telefono con menos o más de 10 dígitos o un correo con dominio distinto a gmail.
+
+## PUNTO 4
+¿Cuál es la diferencia entre autenticación, autorización e integridad? Expliquen dónde y cómo aplicarán cada concepto en la API, con ejemplos del caso. 
+- Autenticación: El proceso en el que un usuario registrado en la web ingresa con sus credenciales.
+- Autorización: Una vez autenticado el usuario solo tiene acceso a los privilegios que su rol compete (principio de mínimo privilegio).
+- Integridad: Que la información de un usuario no se vea alterada ni corrompida.
+
+Seleccionen dos riesgos del OWASP Top 10 que se pueden encontrar en su API. Para cada uno, describan cómo se vería ese escenario aplicable a la barbería, su mitigación y cómo verificarían que el control funciona. 
+- AFDF
+
+¿Cuál de los tipos de autenticación es el más adecuado para este MVP? Justifique su respuesta  
+- FADFA
