@@ -224,3 +224,34 @@ El pipeline base compila, ejecuta las pruebas, construye la imagen, la publica e
 ## 11. Herramientas de modelado y diseño (evidencias)
 ![](docs/images/evidencia-drawio.png)
 ![](docs/images/evidencia-figma.png)
+
+
+
+## PUNTO 2 
+ ### Diagrama de Componentes General
+![alt text](docs/images/componentes_general.png)
+
+### Diagrama de Componentes Especifico
+![alt text](docs/images/componentes_especifico.png)
+
+### Diagrama de Clases
+
+
+### Preguntas para la revisión con Arquitectura
+¿Qué problemas aparecen cuando no se separan correctamente las capas? Presenten un ejemplo del caso y expliquen cómo distribuyen sus responsabilidades.
+- Porque por ejemplo si se ponen anotaciones de persistencia o validaciones web al dominio puro, el negocio queda amarrado a la base de datos y a HTTP. Separándolo, se podría cambiar cómo reciben los datos o dónde los guardo sin tener que rediseñar el centro del sistema.
+- Ejemplo: Separamos la parte de HTTP con la parte de DOMINIO, así que ninguno sabe del otro al igual que con la Persistencia. Con esta separación cada componente de la arquitectura se responsabiliza de sus componentes.
+
+¿Qué diferencia existe entre un validador, una utilidad y un servicio? Ubiquen un ejemplo de cada uno en su diseño e indiquen su responsabilidad. 
+- Un validator es el que valida las reglas del negocio (ej. TurnoValidator que serviría para realizar las 5 validaciones al reservar un turno).
+- Una utilidad es una clase con métodos auxiliares, por ejemplo, una clase de utilidad para hacer operaciones con fechas (no tenemos ninguna contemplada en el diagrama).
+- Un servicio es una clase con la lógica de negocio, es la que hace operaciones sobre objetos del dominio (ej. TurnoService, para crear un turno).
+
+¿Qué diferencia existe entre el Mapper IN y el Mapper OUT? Indiquen dónde se ubican y qué representaciones transforman cada uno. 
+- Mapper IN: Transforma los DTOs a Componentes del DOMINIO y visceversa (se ubica entre el controller y el service).
+- Mapper OUT: Transforma los componentes del DOMINIO en Entities y visceversa (se ubica entre el service y repository).
+
+Retomen las tres reglas clasificadas en el paso anterior: ¿en qué componente debe ejecutarse cada una y por qué?
+- Regla 1: En FechaUtils, se implementa un método para validar si una fecha es futura, porque es una operación repetitiva.
+- Regla 2: En ReservaValidator, ya que al generarse una reserva el barbero deseado por el cliente no puede ser nulo.
+- Regla 3: En ClienteValidator, ya que su correo asociado no debe tener nombre nulo ni vacio, ni un telefono con menos o más de 10 dígitos o un correo con dominio distinto a gmail.
