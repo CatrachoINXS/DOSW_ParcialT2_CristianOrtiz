@@ -98,7 +98,7 @@ DOSW_ParcialT2_CristianOrtiz/
 | `sonar-maven-plugin` | 3.10.0.2594 | Realiza el análisis estático de la calidad y seguridad del código para integrarlo con SonarQube |
 
 ## 6. Configuración y variables de entorno
-
+ 
 | Variable / Secret | Descripción | Ejemplo (sin valores reales) |
 | :--- | :--- | :--- |
 | `DOCKERHUB_USERNAME` | Usuario de Docker Hub | `tu_usuario_docker` |
@@ -225,7 +225,8 @@ El pipeline base compila, ejecuta las pruebas, construye la imagen, la publica e
 ![](docs/images/evidencia-drawio.png)
 ![](docs/images/evidencia-figma.png)
 
-
+## PUNTO 1
+Excel: [docs/punto-1.xlsx](docs/punto-1.xlsx)
 
 ## PUNTO 2 
  ### Diagrama de Componentes General
@@ -235,7 +236,7 @@ El pipeline base compila, ejecuta las pruebas, construye la imagen, la publica e
 ![alt text](docs/images/componentes_especifico.png)
 
 ### Diagrama de Clases
-
+![](docs/uml/clases.drawio.png)
 
 ### Preguntas para la revisión con Arquitectura
 ¿Qué problemas aparecen cuando no se separan correctamente las capas? Presenten un ejemplo del caso y expliquen cómo distribuyen sus responsabilidades.
