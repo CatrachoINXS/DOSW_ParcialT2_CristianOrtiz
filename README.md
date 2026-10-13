@@ -98,7 +98,7 @@ DOSW_ParcialT2_CristianOrtiz/
 | `sonar-maven-plugin` | 3.10.0.2594 | Realiza el análisis estático de la calidad y seguridad del código para integrarlo con SonarQube |
 
 ## 6. Configuración y variables de entorno
-
+ 
 | Variable / Secret | Descripción | Ejemplo (sin valores reales) |
 | :--- | :--- | :--- |
 | `DOCKERHUB_USERNAME` | Usuario de Docker Hub | `tu_usuario_docker` |
