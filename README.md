@@ -240,31 +240,60 @@ Excel: [docs/punto-1.xlsx](docs/punto-1.xlsx)
 
 ### Preguntas para la revisión con Arquitectura
 ¿Qué problemas aparecen cuando no se separan correctamente las capas? Presenten un ejemplo del caso y expliquen cómo distribuyen sus responsabilidades.
-- Porque por ejemplo si se ponen anotaciones de persistencia o validaciones web al dominio puro, el negocio queda amarrado a la base de datos y a HTTP. Separándolo, se podría cambiar cómo reciben los datos o dónde los guardo sin tener que rediseñar el centro del sistema.
-- Ejemplo: Separamos la parte de HTTP con la parte de DOMINIO, así que ninguno sabe del otro al igual que con la Persistencia. Con esta separación cada componente de la arquitectura se responsabiliza de sus componentes.
+- Si el dominio conoce detalles de HTTP, de MongoDB o de Spring Security, el negocio queda acoplado a la tecnología. Eso hace que cualquier cambio en la base de datos o en la capa web obligue a modificar entidades y reglas del negocio.
+- Ejemplo: si Turno incluye anotaciones de persistencia y además valida directamente @RequestParam, entonces la lógica de negocio queda mezclada con la infraestructura. Esto rompe la separación y dificulta cambiar de MongoDB a otra base o de REST a otra interfaz.
+- Nosotros distribuimos las responsabilidades de la siguiente forma: Controller recibe y responde HTTP, mientras que Service contiene la lógica de negocio y Validator aplica reglas del dominio. Mapper IN/OUT transforma DTOs y entidades, Repository persiste datos, Model representa sólo el dominio puro.
 
 ¿Qué diferencia existe entre un validador, una utilidad y un servicio? Ubiquen un ejemplo de cada uno en su diseño e indiquen su responsabilidad. 
-- Un validator es el que valida las reglas del negocio (ej. TurnoValidator que serviría para realizar las 5 validaciones al reservar un turno).
-- Una utilidad es una clase con métodos auxiliares, por ejemplo, una clase de utilidad para hacer operaciones con fechas (no tenemos ninguna contemplada en el diagrama).
-- Un servicio es una clase con la lógica de negocio, es la que hace operaciones sobre objetos del dominio (ej. TurnoService, para crear un turno).
+- Un validador es un componente específico para comprobar una regla del negocio o una regla de entrada. Ejemplo: `TurnoValidator` valida fecha, horario, existencia del barbero y duplicidad.
+- Una utilidad es una clase de apoyo con métodos auxiliares, sin lógica de negocio de dominio. Por ejemplo, una clase de utilidad para hacer operaciones con fechas (no tenemos ninguna contemplada en el MVP).
+- Un servicio es un componente de negocio que orquesta operaciones y coordina validadores, mappers y repositorios. Ejemplo: `TurnoService` o `ReservaService` para crear un turno o reservarlo.
 
 ¿Qué diferencia existe entre el Mapper IN y el Mapper OUT? Indiquen dónde se ubican y qué representaciones transforman cada uno. 
-- Mapper IN: Transforma los DTOs a Componentes del DOMINIO y visceversa (se ubica entre el controller y el service).
-- Mapper OUT: Transforma los componentes del DOMINIO en Entities y visceversa (se ubica entre el service y repository).
+- Mapper IN: Transforma los DTOs de entrada al modelo del Dominio y visceversa (se ubica entre el controller y el service).
+- Mapper OUT: Transforma entidades del dominio a documentos de persistencia (Entity - MongoDB) y visceversa (se ubica entre el service y repository).
 
 Retomen las tres reglas clasificadas en el paso anterior: ¿en qué componente debe ejecutarse cada una y por qué?
 - Regla 1: En FechaUtils, se implementa un método para validar si una fecha es futura, porque es una operación repetitiva.
 - Regla 2: En ReservaValidator, ya que al generarse una reserva el barbero deseado por el cliente no puede ser nulo.
 - Regla 3: En ClienteValidator, ya que su correo asociado no debe tener nombre nulo ni vacio, ni un telefono con menos o más de 10 dígitos o un correo con dominio distinto a gmail.
 
+## PUNTO 3
+
 ## PUNTO 4
 ¿Cuál es la diferencia entre autenticación, autorización e integridad? Expliquen dónde y cómo aplicarán cada concepto en la API, con ejemplos del caso. 
-- Autenticación: El proceso en el que un usuario registrado en la web ingresa con sus credenciales.
-- Autorización: Una vez autenticado el usuario solo tiene acceso a los privilegios que su rol compete (principio de mínimo privilegio).
-- Integridad: Que la información de un usuario no se vea alterada ni corrompida.
+- Autenticación: Es la comprobación de quién es el usuario. En la API, se aplica al inicio de sesión con email y contraseña, donde se valida la identidad del cliente o administrador y se devuelve un JWT.
+- Autorización: Es la comprobación de qué puede hacer ese usuario. Por ejemplo, un cliente puede reservar y consultar sus turnos; un administrador puede crear turnos y ver todas las reservas. Esto se aplica con roles y permisos en Spring Security.
+- Integridad: Asegura que los datos no se alteren ni corrompan durante la operación. En el caso del sistema, se protege la información del cliente, el total calculado de la reserva y el estado del turno para evitar cambios no autorizados o inconsistencias.
 
 Seleccionen dos riesgos del OWASP Top 10 que se pueden encontrar en su API. Para cada uno, describan cómo se vería ese escenario aplicable a la barbería, su mitigación y cómo verificarían que el control funciona. 
-- AFDF
+- Broken Access Control (Control de acceso roto): Un cliente intenta consultar todas las reservas o crear turnos como administrador. La mitigación es validar el rol en cada endpoint con Spring Security y usar JWT con claims de rol. Para verificarlo, se ejecutan pruebas de integración con usuarios sin permisos y se valida que devuelvan 403 Forbidden.
+- Injection / Validación débil: Si un usuario envía datos maliciosos en nombre, correo o teléfono, podría inyectarse texto no esperado o manipular consultas. La mitigación es validar entradas, usar tipos estrictos y prevenir concatenación de strings en consultas. Para verificarlo, se prueban entradas extremas y se comprueba que el sistema retorna errores controlados y no rompe la operación.
 
 ¿Cuál de los tipos de autenticación es el más adecuado para este MVP? Justifique su respuesta  
-- FADFA
+- Para este MVP, el tipo más adecuado es la autenticación basada en JWT. Es simple de implementa, no requiere mantener sesiones en servidor y funciona bien para servicios stateless como la barbería.
+- Justificación: Cumple con los requerimientos de administración y cliente con roles diferenciados (cada petición incluye el token y el backend valida el rol del usuario).
+
+## PUNTO 5
+Explique cómo las pruebas aportan evidencia del cumplimiento de las reglas de negocio. Distingan qué verificarían con pruebas unitarias.
+- Las pruebas aportan evidencia porque validan el comportamiento esperado en condiciones controladas. En un caso como reservar un turno, se prueba que la franja esté disponible, que el barbero tenga la especialidad, que no se repita la combinación fecha-hora y que el total calculado sea correcto.
+- Las pruebas unitarias verificarían la lógica aislada: validadores, cálculo del total, selección del barbero disponible y estado del turno, mientras que las pruebas de integración verificarían el flujo completo de la API: endpoint, seguridad, base de datos y respuesta HTTP.
+
+Explique brevemente y con justificación si considera que las pruebas por sí solas garantizan la ausencia de errores.
+- No, las pruebas no garantizan la ausencia total de errores. Solo proporcionan evidencia práctica de que los casos previstos se comportan como se espera. Un sistema puede pasar pruebas y aun así tener errores no contemplados o condiciones de borde inesperadas. El enfoque correcto sería combinar pruebas unitarias y pruebas de integración para alcanzar un nivel razonable de confianza, siguiendo TDD: 
+   - Definir el caso de falla o éxito
+   - Implementarlo y finalmente refactorizar.
+
+### TDD para Pedir un turno
+Durante la prueba de Pedir un turno, se seguiría el flujo de TDD:
+- ROJO: Se escribe el caso de prueba para un escenario exitoso y para cada rechazo (franja llena, servicio inexistente, correo inválido, etc.).
+- VERDE: Se implementa la lógica mínima para que el caso pase.
+- REFACTOR: Se simplifica el código manteniendo el comportamiento.
+
+Se verifica que:
+- El orden de validación se respeta: La API no continúa si falla la primera condición.
+- El turno no cambia a OCUPADO si alguna regla falla.
+- No se crea la reserva ni se modifica el turno en estados intermedios.
+- Si la operación válida termina, entonces se actualiza el turno y se registra la reserva con el total calculado.
+
+## PUNTO 6
