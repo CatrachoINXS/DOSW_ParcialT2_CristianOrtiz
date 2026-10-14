@@ -237,6 +237,10 @@ a. ¿Cuál es la diferencia entre una validación de entrada y una validación d
 
 La validación de entrada verifica que la información llegue de manera correcta al sistema, esto quiere decir que, tenga la estructura y el formato que se solicita. Por ejemplo que no hayan nombres nulos, telefonos con más de 10 numeros o correos que no tengan en símbolo @. La validación del negocio es la que verifica que se cumplan las reglas de dominio. Por ejemplo cuando se habla de no duplicar turnos, o por ejemplo verificar que el barbero exista.
 
+- regal 1. telefono debe tener 10 digitos numericos (validación de entrada). Es de entrada porque se valida antes de ejecutar la lógica de negocio.
+- regla 2: El turno debe caer en un día de disponibilidad del barbero y dentro de su horario. Es validacion de negocio porqeu afecta la operacion real de la barbería definida en las reglas de negocio.
+- regla 3: El servicio solicitado debe existir en el catálogo. Es validacion de negocio. Primero es una regla definida por el negocio y segundo se valida después de recibir los datos de entrada en los validadores de lógica de negocio.
+
 b. En Pedir un turno, ¿cómo debe responder la API si fallan varias condiciones? Expliquen qué error se informa y qué cambios deben evitarse
 
 La API debería responder con la primera condicion que falle. Si ingresa mal un dato en la entrada, no se debería continuar con la operacion hasta crear los objetos de dominio por ejemplo. Ahi mismo se deberia devolver el mensaje con el motivo del error,sin continuar con las validaciones.
@@ -267,9 +271,9 @@ La API debería responder con la primera condicion que falle. Si ingresa mal un 
 - Mapper OUT: Transforma entidades del dominio a documentos de persistencia (Entity - MongoDB) y visceversa (se ubica entre el service y repository).
 
 Retomen las tres reglas clasificadas en el paso anterior: ¿en qué componente debe ejecutarse cada una y por qué?
-- Regla 1: En FechaUtils, se implementa un método para validar si una fecha es futura, porque es una operación repetitiva.
-- Regla 2: En ReservaValidator, ya que al generarse una reserva el barbero deseado por el cliente no puede ser nulo.
-- Regla 3: En ClienteValidator, ya que su correo asociado no debe tener nombre nulo ni vacio, ni un telefono con menos o más de 10 dígitos o un correo con dominio distinto a gmail.
+- Regla 1: En la primera regla se debe ejecutar una utilidad relacionada con cadenas. Por ejemplo una utilidad que valide que la cadena es un número telefónico porque tiene 10 caracteres y porque empieza con 3 por ejemplo.
+- Regla 2: En TurnoValidator, ya que al generarse un nuevo turno, los horarios de este deben ajustarse al horario laboral del barbero. En dicho validador se verificaría esto
+- Regla 3: En un validator porque es el componente que me permite comprobar que realmente exista el servicio
 
 ## PUNTO 3
 
