@@ -286,38 +286,63 @@ Desventaja: Una posible desventaja es que hay una mayor complejidad en caso de q
 
 ## PUNTO 4
 ¿Cuál es la diferencia entre autenticación, autorización e integridad? Expliquen dónde y cómo aplicarán cada concepto en la API, con ejemplos del caso. 
-- Autenticación: Es la comprobación de quién es el usuario. En la API, se aplica al inicio de sesión con email y contraseña, donde se valida la identidad del cliente o administrador y se devuelve un JWT.
-- Autorización: Es la comprobacion de qué puede hacer ese usuario. Por ejemplo, un cliente puede reservar y consultar sus turnos. Un administrador puede crear turnos y ver todas las reservas. Esto se aplica con roles y permisos en Spring Security.
-- Integridad: Asegura que los datos no se alteren ni corrompan durante la operacion. En la API se aplicará para proteger la información del cliente, el total del precio de las reservas y el estado del turno para evitar cambios no autorizados o inconsistencias.
+
+La autenticación es comprobar quién es el usuario. En la API, se aplica al inicio de sesión con email y contraseña, donde se valida la identidad del cliente o administrador y se devuelve un JWT. Autorizacion es la comprobacion de qué puede hacer ese usuario. Por ejemplo, un cliente puede reservar y consultar sus turnos. Un administrador puede crear turnos y ver todas las reservas. Esto se aplica con roles y permisos en Spring Security. Por otro lado la integridad es la que asegura que los datos no se alteren ni corrompan durante la operacion. En la API se aplicará para proteger la información del cliente, el total del precio de las reservas y el estado del turno para evitar cambios no autorizados o inconsistencias.
 
 Seleccionen dos riesgos del OWASP Top 10 que se pueden encontrar en su API. Para cada uno, describan cómo se veria ese escenario aplicable a la barberia, su mitigación y cómo verificarian que el control funciona. 
 - Broken Access Control (Control de acceso roto): Un cliente intenta consultar todas las reservas o crear turnos como administrador. La mitigación es validar el rol en cada endpoint con Spring Security y usar JWT con claims de rol. Para verificarlo, se ejecutan pruebas de integración con usuarios sin permisos y se valida que devuelvan 403 Forbidden.
-- Injection / Validación debil: Si un usuario envia datos maliciosos en nombre, correo o teléfono, podría inyectarse texto no esperado o manipular consultas. La mitigación es validar entradas, usar tipos estrictos y prevenir concatenación de strings en consultas. Para verificarlo, se prueban entradas extremas y se comprueba que el sistema retorna errores controlados y no rompe la operacion.
+- Injection: Si un usuario envia datos maliciosos en nombre, correo o teléfono, podría inyectarse texto no esperado o manipular consultas. La mitigación es validar entradas, usar tipos estrictos y prevenir concatenación de strings en consultas. Para verificarlo, se prueban entradas extremas y se comprueba que el sistema retorna errores controlados y no rompe la operacion.
 
 ¿Cuál de los tipos de autenticación es el más adecuado para este MVP? Justifique su respuesta  
-- Para este MVP, el tipo más adecuado es la autenticacion basada en JWT. Es simple de implementa, no requiere mantener sesiones en servidor y funciona bien para servicios stateless como la barbería.
-- Justificación: Cumple con los requerimientos de administración y cliente con roles diferenciados (cada petición incluye el token y el backend valida el rol del usuario).
+
+Para este MVP, el tipo más adecuado es la autenticacion basada en JWT. Es simple de implementa, no requiere mantener sesiones en servidor y funciona bien para servicios stateless como la barbería. La razón es porque cumple con los requerimientos de administración y cliente con roles diferenciados.
 
 ## PUNTO 5
 Explique cómo las pruebas aportan evidencia del cumplimiento de las reglas de negocio. Distingan qué verificarían con pruebas unitarias.
-- Las pruebas aportan evidencia porque validan el comportamiento esperado en condiciones controladas. En un caso como reservar un turno, se prueba que la franja esté disponible, que el barbero tenga la especialidad, que no se repita la combinación fecha-hora y que el total calculado sea correcto.
-- Las pruebas unitarias verificarían la lógica aislada: validadores, cálculo del total, selección del barbero disponible y estado del turno, mientras que las pruebas de integración verificarían el flujo completo de la API: endpoint, seguridad, base de datos y respuesta HTTP.
+
+Las pruebas aportan evidencia porque validan el comportamiento esperado en condiciones controladas. En un caso como reservar un turno, se prueba que la franja esté disponible por ejemplo. Verificaríamos la lógica de validadores y calculo de totales.
 
 Explique brevemente y con justificación si considera que las pruebas por sí solas garantizan la ausencia de errores.
-- No, las pruebas no garantizan la ausencia total de errores. Solo proporcionan evidencia práctica de que los casos previstos se comportan como se espera. Un sistema puede pasar pruebas y aun así tener errores no contemplados o condiciones de borde inesperadas. El enfoque correcto sería combinar pruebas unitarias y pruebas de integración para alcanzar un nivel razonable de confianza, siguiendo TDD: 
-   - Definir el caso de falla o éxito
-   - Implementarlo y finalmente refactorizar.
+
+No, las pruebas no garantizan ausencia de errores, solo proporcionan evidencia de que los casos previstos se comportan como se espera. De hecho, un sistema puede pasar todas las pruebas y aun así tener errores no contemplados. Lo ideal es combinar las pruebas unitarias y de integración.
 
 ### TDD para Pedir un turno
 Durante la prueba de Pedir un turno, se seguiría el flujo de TDD:
-- ROJO: Se escribe el caso de prueba para un escenario exitoso y para cada rechazo (franja llena, servicio inexistente, correo inválido, etc.).
-- VERDE: Se implementa la lógica mínima para que el caso pase.
-- REFACTOR: Se simplifica el código manteniendo el comportamiento.
+- ROJO: Primero see escribe el caso de prueba para un escenario exitoso y para cada rechazo, por ejemplo para cuando la franja esta llena, el servicio no existe, el correo es invalido, etc.
+- VERDE: después se implementa la lógica mínima para que el caso pase.
+- REFACTOR: Finalmente se simplifica el código manteniendo el comportamiento.
 
-Se verifica que:
-- El orden de validación se respeta: La API no continúa si falla la primera condición.
-- El turno no cambia a OCUPADO si alguna regla falla.
-- No se crea la reserva ni se modifica el turno en estados intermedios.
-- Si la operación válida termina, entonces se actualiza el turno y se registra la reserva con el total calculado.
+Se verifica que el orden de validación se respete y que la API no continúe si falla la primera condición. También que el turno no cambie a ocupado si alguna regla falla. Tampoco se  crean reservas ni se modifica el turno en estados intermedios. Si la operación válida termina, entonces ahí si se actualiza el turno y se registra la reserva con el total calculado.
 
 ## PUNTO 6
+### Diagrama de despliegue
+
+![](docs/uml/despliegue.png)
+
+a. ¿Cuáles son las etapas principales de un pipeline CI/CD y qué propósito tiene cada una?
+
+Las etapas principales son:
+- Build para compilar la aplicaion y validar que el proyecto se construya correctamente.
+- Test para ejecutar pruebas unitarias y de negocio
+- Package es para empaquetar el proyecto en un ejecutable. En nuestro caso seria .jar o imagen Docker
+- Deploy para publicar la aplicacion en el entorno elegido.
+  
+b. ¿Qué sucede si una prueba falla? ¿Debe permitirse el despliegue? Justifique.
+
+Si una prueba falla, entonces el pipeline se detiene y se marca como error o fallido. No debe permitirse porque si no eso implicaria que el entorno de produccion podria recibir una aplicacion que no funciona.
+
+c. ¿Para qué sirven los logs y qué registrarían para investigar una reserva fallida o un error de autenticación?
+
+Los logs sirven para el tema de auditoria, en ellos se ve que se hizo, cuando se hizo. También para hacer debug y ver el flujo de la aplicacion. Los log que investigariamos para una reserva fallida serian los de error para ver que ocurrio
+
+d. Presente ejemplos de información útil para rastrear la operación y de datos que no deben registrarse.
+
+Informacion util puede ser timestamps, algun payload de un objeto y mensajes que describan excepciones del sistema, como "No existe turno disponible en la franja horaria elegida"
+Datos que no deben rastrearse son contraseñas, numeros de tarjetas de crédito, tokens de JWT, secrets u otros datos que sean sensibles y que puedan comprometer la seguridad de la información de los usuarios.
+
+e. Que diferencia debe existir entre el detalle del log interno del mensaje que recibe el cliente.
+
+El log interno puede contener información más técnica que faciliten a un desarrollador analizar de manera detallada lo que pasa en el sistema. El cliente no deberia recibir estos detalles internos del sistema, el mensaje que reciba debería ser sencillo y concreto.
+
+De hecho exponer detalles muy precisos de error en los logs se puede prestar para que ocurran ataques a esas vulnerabilidades que nosotros mismos estamos exponiendo.
+
