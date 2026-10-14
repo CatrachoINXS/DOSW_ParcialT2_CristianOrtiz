@@ -276,19 +276,26 @@ Retomen las tres reglas clasificadas en el paso anterior: ¿en qué componente d
 - Regla 3: En un validator porque es el componente que me permite comprobar que realmente exista el servicio
 
 ## PUNTO 3
+Nuestra solución requiere de documentos embebidos y referenciados, es decir, una implementación híbrida
+
+VEntaja: algo que identificamos en el diseño de el diagrama de clases es que el uso de objetos embebidos nos proporciona una ventaja a la hora de consultar las reservas y los turnos, porque cuando se quieren consultar las reservas tambien se quiere saber el turno reservado y los detalles de este, además teniendo en cuenta que la relación entre estos es de 1 a pocos.
+
+Desventaja: Una posible desventaja es que hay una mayor complejidad en caso de que se vaya a actualizar algo. En el caso cuando el turno cambia su estado principalmente.
+
+![](docs/uml/metamodelo-conceptual.png)
 
 ## PUNTO 4
 ¿Cuál es la diferencia entre autenticación, autorización e integridad? Expliquen dónde y cómo aplicarán cada concepto en la API, con ejemplos del caso. 
 - Autenticación: Es la comprobación de quién es el usuario. En la API, se aplica al inicio de sesión con email y contraseña, donde se valida la identidad del cliente o administrador y se devuelve un JWT.
-- Autorización: Es la comprobación de qué puede hacer ese usuario. Por ejemplo, un cliente puede reservar y consultar sus turnos; un administrador puede crear turnos y ver todas las reservas. Esto se aplica con roles y permisos en Spring Security.
-- Integridad: Asegura que los datos no se alteren ni corrompan durante la operación. En el caso del sistema, se protege la información del cliente, el total calculado de la reserva y el estado del turno para evitar cambios no autorizados o inconsistencias.
+- Autorización: Es la comprobacion de qué puede hacer ese usuario. Por ejemplo, un cliente puede reservar y consultar sus turnos. Un administrador puede crear turnos y ver todas las reservas. Esto se aplica con roles y permisos en Spring Security.
+- Integridad: Asegura que los datos no se alteren ni corrompan durante la operacion. En la API se aplicará para proteger la información del cliente, el total del precio de las reservas y el estado del turno para evitar cambios no autorizados o inconsistencias.
 
-Seleccionen dos riesgos del OWASP Top 10 que se pueden encontrar en su API. Para cada uno, describan cómo se vería ese escenario aplicable a la barbería, su mitigación y cómo verificarían que el control funciona. 
+Seleccionen dos riesgos del OWASP Top 10 que se pueden encontrar en su API. Para cada uno, describan cómo se veria ese escenario aplicable a la barberia, su mitigación y cómo verificarian que el control funciona. 
 - Broken Access Control (Control de acceso roto): Un cliente intenta consultar todas las reservas o crear turnos como administrador. La mitigación es validar el rol en cada endpoint con Spring Security y usar JWT con claims de rol. Para verificarlo, se ejecutan pruebas de integración con usuarios sin permisos y se valida que devuelvan 403 Forbidden.
-- Injection / Validación débil: Si un usuario envía datos maliciosos en nombre, correo o teléfono, podría inyectarse texto no esperado o manipular consultas. La mitigación es validar entradas, usar tipos estrictos y prevenir concatenación de strings en consultas. Para verificarlo, se prueban entradas extremas y se comprueba que el sistema retorna errores controlados y no rompe la operación.
+- Injection / Validación debil: Si un usuario envia datos maliciosos en nombre, correo o teléfono, podría inyectarse texto no esperado o manipular consultas. La mitigación es validar entradas, usar tipos estrictos y prevenir concatenación de strings en consultas. Para verificarlo, se prueban entradas extremas y se comprueba que el sistema retorna errores controlados y no rompe la operacion.
 
 ¿Cuál de los tipos de autenticación es el más adecuado para este MVP? Justifique su respuesta  
-- Para este MVP, el tipo más adecuado es la autenticación basada en JWT. Es simple de implementa, no requiere mantener sesiones en servidor y funciona bien para servicios stateless como la barbería.
+- Para este MVP, el tipo más adecuado es la autenticacion basada en JWT. Es simple de implementa, no requiere mantener sesiones en servidor y funciona bien para servicios stateless como la barbería.
 - Justificación: Cumple con los requerimientos de administración y cliente con roles diferenciados (cada petición incluye el token y el backend valida el rol del usuario).
 
 ## PUNTO 5
