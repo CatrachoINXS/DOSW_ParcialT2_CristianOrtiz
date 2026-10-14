@@ -225,8 +225,21 @@ El pipeline base compila, ejecuta las pruebas, construye la imagen, la publica e
 ![](docs/images/evidencia-drawio.png)
 ![](docs/images/evidencia-figma.png)
 
+---
+
+# Resolución del parcial
+
 ## PUNTO 1
-Excel: [docs/punto-1.xlsx](docs/punto-1.xlsx)
+Excel : [docs/parcial-endpoints-punto-1](parcial-endpoints-punto-1)
+
+### Preguntas para la revision con producto
+a. ¿Cuál es la diferencia entre una validación de entrada y una validación de negocio? Seleccionen tres reglas del caso, incluyendo al menos una de cada tipo, y justifiquen su clasificación.
+
+La validación de entrada verifica que la información llegue de manera correcta al sistema, esto quiere decir que, tenga la estructura y el formato que se solicita. Por ejemplo que no hayan nombres nulos, telefonos con más de 10 numeros o correos que no tengan en símbolo @. La validación del negocio es la que verifica que se cumplan las reglas de dominio. Por ejemplo cuando se habla de no duplicar turnos, o por ejemplo verificar que el barbero exista.
+
+b. En Pedir un turno, ¿cómo debe responder la API si fallan varias condiciones? Expliquen qué error se informa y qué cambios deben evitarse
+
+La API debería responder con la primera condicion que falle. Si ingresa mal un dato en la entrada, no se debería continuar con la operacion hasta crear los objetos de dominio por ejemplo. Ahi mismo se deberia devolver el mensaje con el motivo del error,sin continuar con las validaciones.
 
 ## PUNTO 2 
  ### Diagrama de Componentes General
