@@ -15,6 +15,7 @@
 
 ## 1. Datos del estudiante
 **Nombre:** Cristian Camilo Ortiz Sanchez
+**Compañero:** Daniel José Villamizar Castellanos - https://github.com/ChanguaLover4ever/DOSW_ParcialT2_DanielVillamizar.git
 **Grupo:** 1
 
 ## 2. Descripción del proyecto
